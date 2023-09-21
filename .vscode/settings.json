@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.frag": "shaderlab",
+        "unordered_map": "cpp"
+    }
+}

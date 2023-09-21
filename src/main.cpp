@@ -72,6 +72,7 @@ void updateLastAlive();
 void sendLocalLog(std::pair<string,string> entry);
 std::unordered_map<std::string, std::string> sqlResults(char* sql_query);
 void executeSQL();
+void clearScreen();
 
 
 
@@ -83,7 +84,6 @@ void setup() {
     Serial.println(F("failed to start SSD1306 OLED"));
     while (1);
   }
-  delay(1000);         // wait two seconds for initializing
 
   Serial.println("Booting...");
   
@@ -95,29 +95,24 @@ void setup() {
   oled.println("Booting...");
   oled.display();
   
+  delay(2000);         // wait two seconds for initializing
   //Initialize pins to correct modes. 
   pinMode(LED_BUILTIN, OUTPUT);
   // pinMode(D1, OUTPUT);
   pinMode(DOOR_PIN, OUTPUT);
 
-
-
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(200);
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(200);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(200);
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(200);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(200);
-  digitalWrite(LED_BUILTIN, HIGH);
-
-
+  oled.clearDisplay();
+  oled.drawBitmap(0, 18, TSB.data, TSB.width, TSB.height, WHITE);
+  oled.display();
+  
   connectToWiFi();
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   if(!conn.connected() && !only_local) connectToSQL();
+  else{
+    oled.drawBitmap(16, 0, white.data, no_database.height, no_database.width, BLACK);
+    oled.drawBitmap(16, 0, no_database.data, no_database.height, no_database.width, WHITE);
+    oled.display();
+  }
 
   
   while (!Serial);		// Do nothing if no serial port is opened (added for Arduinos based on ATMEGA32U4)
@@ -130,6 +125,7 @@ void setup() {
 	Serial.println("setup end");
   digitalWrite(LED_BUILTIN, LOW);
 
+  clearScreen();
 }
 
 void loop() {
@@ -142,11 +138,16 @@ void loop() {
 
   checkPermition();
 
+  clearScreen();
+
 }
 
-
-
-
+void clearScreen(){
+    delay(2000);
+    oled.drawBitmap(95, 0, white.data, white.width, white.height, BLACK);
+    oled.drawBitmap(95, 0, lock.data, lock.width, lock.height, WHITE);
+    oled.display();
+  }
 
 
 void checkPermition(){
@@ -163,6 +164,11 @@ void checkPermition(){
 void addLocalLog(){
   Serial.printf("################# Local log %s at %s#######################  \n", uid_buffer, getTime());
   logMap[uid_buffer] = getTime();
+  oled.drawBitmap(95, 0, white.data, white.width, white.height, BLACK);
+  oled.drawBitmap(95, 0, block.data, block.width, block.height, WHITE);
+  oled.display();
+  
+
 }
 
 void checkOnline(){
@@ -231,17 +237,14 @@ char* getTime(){
 
 void openingDoor(){
   Serial.printf("\n --------------------open------------ %s ----------\n", uid_buffer);
-  oled.clearDisplay(); // clear display
 
-  oled.setTextSize(3);
-  oled.setTextColor(WHITE);
-  oled.setCursor(0, 10);
-  oled.println("Opening");
+  oled.drawBitmap(95, 0, white.data, white.width, white.height, BLACK);
+  oled.drawBitmap(95, 0, open_lock.data, open_lock.width, open_lock.height, WHITE);
   oled.display();
+
   digitalWrite(DOOR_PIN, HIGH);
   delay(200);
   digitalWrite(DOOR_PIN, LOW);
-
 }
 
 
@@ -249,6 +252,9 @@ void addRemoteLog(){
   Serial.printf("\n --------------------adding------------ %s ---------\n", uid_buffer);
   sprintf(query, put_sql, uid_buffer, getTime());
   executeSQL();
+  oled.drawBitmap(95, 0, white.data, white.width, white.height, BLACK);
+  oled.drawBitmap(95, 0, block.data, block.width, block.height, WHITE);
+  oled.display();
 }
 
 void updateDatabaseFlag(){
@@ -295,22 +301,34 @@ void sendLocalLog(std::pair<string,string> entry){
 void connectToSQL() {
   if (conn.connect(sql_ip, sql_port, sql_user, sql_password)) {
     Serial.println("Database connected.");
+    oled.drawBitmap(16, 0, white.data, database.height, database.width, BLACK);
+    oled.drawBitmap(16, 0, database.data, database.height, database.width, WHITE);
+    oled.display();
   }
   else{
     Serial.println("SQL Connection failed.");
+    oled.drawBitmap(16, 0, white.data, database.height, database.width, BLACK);
+    oled.drawBitmap(16, 0, no_database.data, no_database.height, no_database.width, WHITE);
+    oled.display();
   }
 }
 
 void connectToWiFi() {
-  Serial.printf("Connecting to '%s'\n", home_wifi_ssid);
+  Serial.printf("Connecting to '%s'\n", wifi_ssid);
 
   WiFi.mode(WIFI_STA);
-  WiFi.begin(home_wifi_ssid, home_wifi_password);
+  WiFi.begin(wifi_ssid, wifi_password);
   if (WiFi.waitForConnectResult() == WL_CONNECTED) {
     Serial.print("Connected. IP: ");
     Serial.println(WiFi.localIP());
+    oled.drawBitmap(0, 0, white.data, wifi.height, wifi.width, BLACK);
+    oled.drawBitmap(0, 0, wifi.data, wifi.height, wifi.width, WHITE);
+    oled.display();
   } else {
     Serial.println("WIFI Connection Failed!");
+    oled.drawBitmap(0, 0, white.data, wifi.height, wifi.width, BLACK);
+    oled.drawBitmap(0, 0, no_wifi.data, no_wifi.height, no_wifi.width, WHITE);
+    oled.display();
   }
 }
 
