@@ -26,6 +26,9 @@ const std::unordered_map<std::string, std::string> local =
 
 // bitmaps
 
+// create your bit maps here:
+// https://javl.github.io/image2cpp/
+
 // Define a struct to hold bitmap data and its size
 struct Bitmap {
     const unsigned char* data;
