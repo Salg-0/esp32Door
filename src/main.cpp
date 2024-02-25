@@ -21,7 +21,7 @@ using namespace std;
 
 #define RST_PIN         4
 #define SDA_PIN         5
-#define DOOR_PIN        25
+#define DOOR_PIN        15
 
 
 /*        WIFI          */
@@ -80,7 +80,7 @@ void setup() {
 
 
   Serial.begin(9600);
-  if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+  if (!oled.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("failed to start SSD1306 OLED"));
     while (1);
   }
@@ -97,8 +97,7 @@ void setup() {
   
   delay(2000);         // wait two seconds for initializing
   //Initialize pins to correct modes. 
-  pinMode(LED_BUILTIN, OUTPUT);
-  // pinMode(D1, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT); //this is not the led but the door relay
   pinMode(DOOR_PIN, OUTPUT);
 
   oled.clearDisplay();
@@ -123,7 +122,6 @@ void setup() {
   
   if(!only_local) ticker.attach(120, updateDatabaseFlag);
 	Serial.println("setup end");
-  digitalWrite(LED_BUILTIN, LOW);
 
   clearScreen();
 }
@@ -133,17 +131,16 @@ void loop() {
   if(updating) updateDatabase();
 
 	if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) return;
-  
+
   getUID();
 
   checkPermition();
 
   clearScreen();
-
 }
 
 void clearScreen(){
-    delay(2000);
+    delay(500);
     oled.drawBitmap(95, 0, white.data, white.width, white.height, BLACK);
     oled.drawBitmap(95, 0, lock.data, lock.width, lock.height, WHITE);
     oled.display();
@@ -242,9 +239,9 @@ void openingDoor(){
   oled.drawBitmap(95, 0, open_lock.data, open_lock.width, open_lock.height, WHITE);
   oled.display();
 
-  digitalWrite(DOOR_PIN, HIGH);
-  delay(200);
-  digitalWrite(DOOR_PIN, LOW);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 
@@ -262,7 +259,6 @@ void updateDatabaseFlag(){
 }
 
 void updateDatabase(){
-  digitalWrite(LED_BUILTIN, HIGH);
   Serial.printf("\n --------------------Data Base updated--------at %s-----\n", getTime());
   
   
@@ -277,7 +273,6 @@ void updateDatabase(){
     updateLastAlive();
   }
   updating = false;
-  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void updateSQLLog(){
