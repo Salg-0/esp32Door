@@ -294,6 +294,7 @@ void sendLocalLog(std::pair<string,string> entry){
 }
 
 void connectToSQL() {
+    Serial.println("trying to connected to Database.");
   if (conn.connect(sql_ip, sql_port, sql_user, sql_password)) {
     Serial.println("Database connected.");
     oled.drawBitmap(16, 0, white.data, database.height, database.width, BLACK);
@@ -309,10 +310,10 @@ void connectToSQL() {
 }
 
 void connectToWiFi() {
-  Serial.printf("Connecting to '%s'\n", wifi_ssid);
+  Serial.printf("Connecting to '%s'\n", ssid);
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(wifi_ssid, wifi_password);
+  // WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, WPA2_AUTH_PEAP, EAP_IDENTITY, EAP_USERNAME, EAP_PASSWORD); // without CERTIFICATE, RADIUS server EXCEPTION "for old devices" required
   if (WiFi.waitForConnectResult() == WL_CONNECTED) {
     Serial.print("Connected. IP: ");
     Serial.println(WiFi.localIP());

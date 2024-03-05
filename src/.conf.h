@@ -7,16 +7,19 @@
 #define only_local true // if true, only local database is used else sql database is used
 
 // [wifi]
-#define wifi_ssid "your_ssid"
-#define wifi_password "your_password"
+// #define wifi_ssid "your_ssid"
+// #define wifi_password "your_password"
+const char* ssid = "eduroam"; // eduroam SSID
+#define EAP_IDENTITY "XXXXXXX@ogr.pt"
+#define EAP_USERNAME "XXXXXXX@ogr.pt" // the Username is the same as the Identity in most eduroam networks.
+#define EAP_PASSWORD "xxxxxx"
 
 // [sql]
 #define sql_ip {0, 0, 0, 0}
 #define sql_user "sql_user"
 #define sql_password "sql_password"
 #define sql_database_table "sql_database.table_name"
-
-#define sql_port sql_port
+#define sql_port "sql_port"
 
 const std::unordered_map<std::string, std::string> local = 
 {
