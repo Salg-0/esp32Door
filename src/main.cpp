@@ -240,7 +240,7 @@ void openingDoor(){
   oled.display();
 
   digitalWrite(LED_BUILTIN, HIGH);
-  delay(1000);
+  delay(100);
   digitalWrite(LED_BUILTIN, LOW);
 }
 
